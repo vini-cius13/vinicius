@@ -16,48 +16,76 @@ function getVendas(req, res) {
 }
 
 function createVenda(req, res) {
-    let body = ''
+    let body = '';
     req.on('data', chunk => {
-        body += chunk.toString()
-    })
+        body += chunk.toString();
+    });
+
     req.on('end', () => {
-        let venda = JSON.parse(body)
-        vendas.push(venda)
-        res.statusCode = 200
-        res.end(JSON.stringify(venda))
-    })
+        const venda = JSON.parse(body);
+        db.run(
+            'INSERT INTO vendas (codVendedor, nome, cargo, codVenda, valorVenda) VALUES (?, ?, ?, ?, ?)',
+            [venda.codVendedor, venda.nome, venda.cargo, venda.codVenda, venda.valorVenda],
+            function (err) {
+                if (err) {
+                    console.error(err.message);
+                    res.statusCode = 500;
+                    res.end(JSON.stringify({ mensagem: 'Erro ao criar a venda.' }));
+                } else {
+                    venda.id = this.lastID;
+                    vendas.push(venda);
+                    res.statusCode = 200;
+                    res.end(JSON.stringify(venda));
+                }
+            }
+        );
+    });
 }
 
 function updateVenda(req, res) {
-    const vendaSearch = req.url.split('/')[2]
-    let body = ''
+    const vendaSearch = req.url.split('/')[2];
+    let body = '';
     req.on('data', chunk => {
-        body += chunk.toString()
-    })
+        body += chunk.toString();
+    });
+
     req.on('end', () => {
-        const index = vendas.findIndex(venda => venda.codVenda == vendaSearch)
-        if (index >= 0) {
-            vendas[index] = JSON.parse(body)
-            res.statusCode = 200
-            res.end(JSON.stringify(vendas[index]))
-        } else {
-            res.statusCode = 404
-            res.end(JSON.stringify({ mensagem: 'Rota não encontrada.' }))
-        }
-    })
+        const novaVenda = JSON.parse(body);
+
+        db.run(
+            'UPDATE vendas SET codVendedor=?, nome=?, cargo=?, codVenda=?, valorVenda=? WHERE codVenda=?',
+            [novaVenda.codVendedor, novaVenda.nome, novaVenda.cargo, novaVenda.codVenda, novaVenda.valorVenda, vendaSearch],
+            function (err) {
+                if (err) {
+                    console.error(err.message);
+                    res.statusCode = 500;
+                    res.end(JSON.stringify({ mensagem: 'Erro ao atualizar a venda.' }));
+                } else {
+                    const index = vendas.findIndex(venda => venda.codVenda == vendaSearch);
+                    vendas[index] = novaVenda;
+                    res.statusCode = 200;
+                    res.end(JSON.stringify(novaVenda));
+                }
+            }
+        );
+    });
 }
 
 function eraseVenda(req, res) {
-    const vendaSearch = req.url.split('/')[2]
-    const index = vendas.findIndex(venda => venda.codVenda == vendaSearch)
-    if (index >= 0) {
-        vendas.splice(index, 1);
-        res.statusCode = 200
-        res.end(JSON.stringify({ mensagem: "Venda apagada." }))
-    } else {
-        res.statusCode = 404
-        res.end(JSON.stringify({ mensagem: 'Rota não encontrada.' }))
-    }
+    const vendaSearch = req.url.split('/')[2];
+
+    db.run('DELETE FROM vendas WHERE codVenda=?', [vendaSearch], function (err) {
+        if (err) {
+            console.error(err.message);
+            res.statusCode = 500;
+            res.end(JSON.stringify({ mensagem: 'Erro ao apagar a venda.' }));
+        } else {
+            const index = vendas.findIndex(venda => venda.codVenda == vendaSearch);
+            vendas.splice(index, 1);
+            res.statusCode = 200;
+            res.end(JSON.stringify({ mensagem: 'Venda apagada.' }));
+        }
+    });
 }
 
 const servidorWEB = http.createServer(function (req, res) {
@@ -81,7 +109,7 @@ const servidorWEB = http.createServer(function (req, res) {
         eraseVenda(req, res)
     } else {
         res.statusCode = 404
-        res.end(JSON.stringify({ mensagem: "Rota não encontrada." }))
+        res.end(JSON.stringify({ mensagem: "Rota nÃ£o encontrada." }))
     }
 })
 
