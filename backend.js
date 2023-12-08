@@ -109,7 +109,7 @@ const servidorWEB = http.createServer(function (req, res) {
         eraseVenda(req, res)
     } else {
         res.statusCode = 404
-        res.end(JSON.stringify({ mensagem: "Rota nÃ£o encontrada." }))
+        res.end(JSON.stringify({ mensagem: "Rota não encontrada." }))
     }
 })
 

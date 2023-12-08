@@ -1,9 +1,172 @@
 <!DOCTYPE html>
-<html>
-    <head>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width initial-scale=1.0">
+    <title>Relatório de Vendas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-    </head>
-    <body>
-        <h2>oie</h2>
-    </body>
+    <style>
+        h1 {
+            background-color: #dc3545;
+            padding: 10px;
+            color: white;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        h2, h4 {
+            background: #0D6EFD;
+            padding: 10px;
+            color: white;
+        }
+
+        
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: auto;
+            width: 100%; 
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            width: 120px;
+        }
+
+        th {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col">
+            <h1>Consórcios LTDA.</h1>
+            <div class="col text-center">
+                <h2>Relatório de Vendas</h2>
+            </div>
+        </div>
+    </div>
+   
+    <div class="row mt-3">
+        <div class="col">
+            <h4>Detalhes por Vendedor</h4>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Código do Vendedor</th>
+                    <th>Nome do Vendedor</th>
+                    <th>Total de Vendas</th>
+                    <th>Comissão Total</th>
+                    <th>Maior Venda</th>
+                </tr>
+                </thead>
+                <tbody id="tabelaDetalhesVendedor">
+                </tbody>
+            </table>
+            <div class="row mt-3">
+                <div class="col">
+                    <h4>Totais</h4>
+                    <p>Total de Vendas Geral: <span id="totalVendasGeral">R$ 0.00</span></p>
+                    <p>Maior Venda Geral: <span id="maiorVendaGeral">R$ 0.00</span></p>
+                    <p>Comissão Total: <span id="comissaoTotal">R$ 0.00</span></p>
+                </div>
+            </div>
+        
+        </div>
+    </div>
+</div>
+<script>
+    let vendas = [];
+    let detalhesVendedores = {};
+
+    function renderDetalhesVendedor(detalhesVendedores) {
+        const tabelaDetalhesVendedor = document.getElementById('tabelaDetalhesVendedor');
+        tabelaDetalhesVendedor.innerHTML = '';
+
+        const detalhesOrdenados = Object.entries(detalhesVendedores)
+            .sort(([, a], [, b]) => b.totalVendas - a.totalVendas);
+
+        for (const [vendedor, detalhes] of detalhesOrdenados) {
+            tabelaDetalhesVendedor.innerHTML += `
+                <tr>
+                    <td>${vendedor}</td>
+                    <td>${detalhes.nome}</td>
+                    <td>R$ ${detalhes.totalVendas.toFixed(2)}</td>
+                    <td>R$ ${detalhes.comissaoTotal.toFixed(2)}</td>
+                    <td>R$ ${detalhes.maiorVenda.toFixed(2)}</td>
+                </tr>
+            `;
+        }
+    }
+
+    function calcularTotais() {
+        let totalVendasGeral = 0;
+        let maiorVendaGeral = 0;
+        let comissaoTotal = 0;
+
+        vendas.forEach((venda) => {
+            totalVendasGeral += venda.valorVenda;
+            comissaoTotal += calcularComissao(venda);
+
+            if (venda.valorVenda > maiorVendaGeral) {
+                maiorVendaGeral = venda.valorVenda;
+            }
+
+            if (!detalhesVendedores[venda.codVendedor]) {
+                detalhesVendedores[venda.codVendedor] = {
+                    nome: venda.nome,
+                    totalVendas: 0,
+                    comissaoTotal: 0,
+                    maiorVenda: 0
+                };
+            }
+
+            detalhesVendedores[venda.codVendedor].totalVendas += venda.valorVenda;
+            detalhesVendedores[venda.codVendedor].comissaoTotal += calcularComissao(venda);
+
+            if (venda.valorVenda > detalhesVendedores[venda.codVendedor].maiorVenda) {
+                detalhesVendedores[venda.codVendedor].maiorVenda = venda.valorVenda;
+            }
+        });
+
+        document.getElementById('totalVendasGeral').textContent = `R$ ${totalVendasGeral.toFixed(2)}`;
+        document.getElementById('maiorVendaGeral').textContent = `R$ ${maiorVendaGeral.toFixed(2)}`;
+        document.getElementById('comissaoTotal').textContent = `R$ ${comissaoTotal.toFixed(2)}`;
+
+        renderDetalhesVendedor(detalhesVendedores);
+    }
+
+    function calcularComissao(venda) {
+        switch (venda.cargo.toLowerCase()) {
+            case 'senior':
+                return venda.valorVenda * 0.03;
+            case 'pleno':
+                return venda.valorVenda * 0.02;
+            case 'junior':
+                return venda.valorVenda * 0.01;
+            default:
+                return 0;
+        }
+    }
+
+    function searchVendas() {
+        fetch('http://localhost:5000/api')
+            .then(response => response.json())
+            .then(dados => {
+                vendas = dados;
+                calcularTotais();
+                renderTabela();
+            });
+    }
+
+    searchVendas();
+</script>
+</body>
 </html>

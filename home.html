@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="projetositegunter/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;800&display=swap" rel="stylesheet">
+  
+  
+  <style>
+        body {
+    height: 100vh;
+    font-family: 'Playfair Display', serif;
+    background-color: #FFFFFF ;
+}
+* {
+    box-sizing: border-box;
+}
+
+section {
+   height: 100vh;
+   padding: 3em;
+
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight:900;
+    color: #0D6EFD;
+}
+
+.overlay {
+    background: #dc3545;
+    color: #FFFFFF;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    clip-path: circle(100px at var(--x, 50%) var(--y, 50%));
+    transition: clip-path 150ms;    
+}
+
+span {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    display: flex;
+    cursor: pointer;
+}
+
+svg {
+  margin: 1em;
+  fill: #2C302E ;  
+}
+
+.text-overlay {
+    color: #2C302E;
+}
+
+.is-open{
+    clip-path: circle(200% at 100% 100%);
+}
+    </style>
+</head>
+<body>
+    <section>
+        <h1>Seu Consórcio,<br>
+            Sua Jornada,<br> 
+            Nossa Inovação.</h1>
+            <span idclass="hover-btn">
+                <svg viewBox="0 0 62 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M61.0607 13.0607C61.6465 12.4749 61.6465 11.5251 61.0607 10.9393L51.5147 1.3934C50.9289 0.807612 49.9792 0.807612 49.3934 1.3934C48.8076 1.97918 48.8076 2.92893 49.3934 3.51472L57.8787 12L49.3934 20.4853C48.8076 21.0711 48.8076 22.0208 49.3934 22.6066C49.9792 23.1924 50.9289 23.1924 51.5147 22.6066L61.0607 13.0607ZM0 13.5H60V10.5H0V13.5Z" />
+                </svg>
+            </span>
+    </section>
+
+    <section class="overlay">
+        <h1 class="text-overlay">Seu Consórcio,<br>
+            Sua Jornada,<br> 
+            Nossa Inovação.</h1>
+            <span id="meuSpan" class="hover-btn2">
+                <svg viewBox="0 0 62 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M61.0607 13.0607C61.6465 12.4749 61.6465 11.5251 61.0607 10.9393L51.5147 1.3934C50.9289 0.807612 49.9792 0.807612 49.3934 1.3934C48.8076 1.97918 48.8076 2.92893 49.3934 3.51472L57.8787 12L49.3934 20.4853C48.8076 21.0711 48.8076 22.0208 49.3934 22.6066C49.9792 23.1924 50.9289 23.1924 51.5147 22.6066L61.0607 13.0607ZM0 13.5H60V10.5H0V13.5Z" />
+                </svg>
+            </span>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+
+        const span = document.querySelector('.hoverbtn2')
+        const overlay = document.querySelector('.overlay')
+
+        window.addEventListener('mousemove', (e) => {
+            const { clientX, clientY} = e; 
+            const x = Math.round((clientX / window.innerWidth) * 100);
+            const y = Math.round((clientY / window.innerHeight) * 100);
+
+            gsap.to(overlay, {
+                '--x': `${x}%`,
+                '--y': `${y}%`,
+                duration: 0.3,
+                ease: 'sine.out'
+
+            })
+
+        })
+
+        document.getElementById("meuSpan").addEventListener("click", function() {
+            window.location.href = "index.html";
+        });
+
+       
+    </script>
+</body>
+</html>
